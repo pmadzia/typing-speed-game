@@ -1,13 +1,19 @@
 import pygame
 from pygame.locals import *
+from pygame.surface import Surface
 import sys
 import time
 import random
 
 
 class Game:
+    """
+    Typing speed test game.
+    Handles UI rendering, input processing, performance calculation (WPM, accuracy), and state management.
+    """
 
     def __init__(self):
+        """Initialize game parameters and pygame."""
         self.w = 750
         self.h = 500
         self.reset = True
@@ -17,31 +23,34 @@ class Game:
         self.time_start = 0
         self.total_time = 0
         self.accuracy = "0%"
-        self.results = "Time: 0 Accuracy 0% WPM: 0"
+        self.results = "Time: 0, Accuracy 0%, WPM: 0"
         self.wpm = 0
         self.end = False
-        self.HEAD_C = (255, 213, 102)
+        self.MAIN_C = (0, 213, 102)
         self.TEXT_C = (240, 240, 240)
         self.RESULTS_C = (255, 70, 70)
+        self.RESET_C = (100, 100, 100)
 
         pygame.init()
         self.screen = pygame.display.set_mode((self.w, self.h))
         self.screen.fill([0, 0, 0])
         pygame.display.set_caption("Typing speed test")
 
-    def draw_text(self, screen, msg, y, fsize, color):
+    def draw_text(self, screen: Surface, msg: str, y: int, fsize: int, color: tuple[int, int, int]) -> None:
         font = pygame.font.Font(None, fsize)
         text = font.render(msg, 1, color)
         text_rect = text.get_rect(center=(self.w/2, y))
         screen.blit(text, text_rect)
 
-    def get_sentence(self):
+    def get_sentence(self) -> str:
+        """Load a random sentence from text file."""
         with open("sentences.txt", "r") as f:
             sentences = f.read().split("\n")
             sentence = random.choice(sentences)
             return sentence
 
-    def show_results(self, screen):
+    def show_results(self, screen: Surface) -> None:
+        """Calculate and display typing results: total time, accuracy and words per minute."""
         self.total_time = time.time() - self.time_start
 
         # Accuracy
@@ -61,17 +70,20 @@ class Game:
         print(self.total_time)
 
         self.results = (
-            f"Time: {str(round(self.total_time))} secs "
-            f"Accuracy: {str(round(self.accuracy))}% "
+            f"Time: {str(round(self.total_time))} secs, "
+            f"Accuracy: {str(round(self.accuracy))}%, "
             f"WPM: {str(round(self.wpm))}"
         )
 
-        self.draw_text(screen, "Reset", self.h - 70, 26, (100, 100, 100))
+        self.draw_text(screen, "Reset", self.h - 70, 26, self.RESET_C)
         print(self.results)
 
         pygame.display.update()
 
-    def reset_game(self):
+    def reset_game(self) -> None:
+        """
+        Reset game and load a new sentence.
+        """
         self.screen.fill([0, 0, 0])
 
         pygame.display.update()
@@ -89,7 +101,7 @@ class Game:
         self.word = self.get_sentence()
 
         msg = "Typing Speed Test"
-        self.draw_text(self.screen, msg, 80, 80, self.HEAD_C)
+        self.draw_text(self.screen, msg, 80, 80, self.MAIN_C)
         pygame.draw.rect(self.screen, (255, 192, 25), (50, 250, 650, 50), 2)
 
         self.draw_text(self.screen, self.word, 200, 28, self.TEXT_C)
@@ -97,14 +109,18 @@ class Game:
         pygame.display.update()
         self.active = True
 
-    def run(self):
+    def run(self) -> None:
+        """
+        Main loop of the game.
+        Handles input events, rendering and state transitions.
+        """
         self.reset_game()
 
         self.running = True
         while self.running:
             clock = pygame.time.Clock()
             self.screen.fill((0, 0, 0), (50, 250, 650, 50))
-            pygame.draw.rect(self.screen, self.HEAD_C, (50, 250, 650, 50), 2)
+            pygame.draw.rect(self.screen, self.MAIN_C, (50, 250, 650, 50), 2)
 
             self.draw_text(self.screen, self.input_text, 274, 26, (250, 250, 250))
             pygame.display.update()
@@ -138,15 +154,13 @@ class Game:
                         else:
                             self.input_text += event.unicode
 
-                if self.end:
-                    self.draw_text(self.screen, "Reset", self.h - 70, 26, (100, 100, 100))
-
                 pygame.display.update()
 
             clock.tick(60)
                 
 
 def main():
+    """Enter point for the game"""
     Game().run()
 
 
