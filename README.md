@@ -3,7 +3,7 @@
 Simple typing speed test game.
 ## Technologies Used
 - Python
-- Pygames
+- Pygame
 ## Installation & Running
 1. **Clone the repository**
       ```sh
